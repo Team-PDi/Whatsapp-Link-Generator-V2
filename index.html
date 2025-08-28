@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global WhatsApp Link Generator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      background: #fff;
+      padding: 35px 25px;
+      border-radius: 15px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      max-width: 450px;
+      width: 100%;
+      text-align: left;
+    }
+    h2 {
+      margin-bottom: 10px;
+      color: #075E54;
+      text-align: center;
+    }
+    .instructions {
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    .dropdown {
+      position: relative;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+    .dropdown input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+      cursor: pointer;
+    }
+    .dropdown .arrow {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      font-size: 18px;
+      color: #333;
+    }
+    .dropdown-list {
+      position: absolute;
+      width: 100%;
+      max-height: 250px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-top: 5px;
+      display: none;
+      z-index: 100;
+      text-align: left;
+    }
+    .dropdown-list div {
+      padding: 10px;
+      cursor: pointer;
+    }
+    .dropdown-list div:hover {
+      background: #25D366;
+      color: #fff;
+    }
+    input[type="text"], button.generate-btn {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button.generate-btn {
+      background: #25D366;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+    button.generate-btn:hover {
+      background: #1ebe57;
+    }
+    button.action-btn {
+      background: #128C7E;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin: 5px 0;
+      transition: background 0.3s;
+      width: 48%;
+    }
+    button.action-btn:hover {
+      background: #075E54;
+    }
+    .result {
+      margin-top: 20px;
+      word-wrap: break-word;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .result p {
+      width: 100%;
+      margin: 5px 0;
+      word-break: break-all;
+    }
+    @media(max-width: 500px){
+      .result button.action-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>WhatsApp Link Generator</h2>
+
+    <!-- Instructions Section -->
+    <div class="instructions">
+      1. Select your country from the dropdown.<br>
+      2. Enter your phone number (with or without leading zero).<br>
+      3. Click <strong>Generate Link</strong>.<br>
+      4. Copy the link or open it directly in WhatsApp.
+    </div>
+
+    <div class="dropdown">
+      <input type="text" id="countryInput" placeholder="Select country" readonly>
+      <span class="arrow">&#9662;</span>
+      <div class="dropdown-list" id="dropdownList"></div>
+    </div>
+
+    <input type="text" id="phoneNumber" placeholder="Enter your phone number">
+    <button class="generate-btn" onclick="generateLink()">Generate Link</button>
+
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    const countries = [
+      { name: "Afghanistan", code: "+93" },{ name: "Albania", code: "+355" },{ name: "Algeria", code: "+213" },
+      { name: "Andorra", code: "+376" },{ name: "Angola", code: "+244" },{ name: "Antigua and Barbuda", code: "+1" },
+      { name: "Argentina", code: "+54" },{ name: "Armenia", code: "+374" },{ name: "Australia", code: "+61" },
+      { name: "Austria", code: "+43" },{ name: "Azerbaijan", code: "+994" },{ name: "Bahamas", code: "+1" },
+      { name: "Bahrain", code: "+973" },{ name: "Bangladesh", code: "+880" },{ name: "Barbados", code: "+1" },
+      { name: "Belarus", code: "+375" },{ name: "Belgium", code: "+32" },{ name: "Belize", code: "+501" },
+      { name: "Benin", code: "+229" },{ name: "Bhutan", code: "+975" },{ name: "Bolivia", code: "+591" },
+      { name: "Bosnia and Herzegovina", code: "+387" },{ name: "Botswana", code: "+267" },{ name: "Brazil", code: "+55" },
+      { name: "Brunei", code: "+673" },{ name: "Bulgaria", code: "+359" },{ name: "Burkina Faso", code: "+226" },
+      { name: "Burundi", code: "+257" },{ name: "Cambodia", code: "+855" },{ name: "Cameroon", code: "+237" },
+      { name: "Canada", code: "+1" },{ name: "Cape Verde", code: "+238" },{ name: "Central African Republic", code: "+236" },
+      { name: "Chad", code: "+235" },{ name: "Chile", code: "+56" },{ name: "China", code: "+86" },
+      { name: "Colombia", code: "+57" },{ name: "Comoros", code: "+269" },{ name: "Congo", code: "+242" },
+      { name: "Costa Rica", code: "+506" },{ name: "Croatia", code: "+385" },{ name: "Cuba", code: "+53" },
+      { name: "Cyprus", code: "+357" },{ name: "Czech Republic", code: "+420" },{ name: "Denmark", code: "+45" },
+      { name: "Djibouti", code: "+253" },{ name: "Dominica", code: "+1" },{ name: "Dominican Republic", code: "+1" },
+      { name: "Ecuador", code: "+593" },{ name: "Egypt", code: "+20" },{ name: "El Salvador", code: "+503" },
+      { name: "Equatorial Guinea", code: "+240" },{ name: "Eritrea", code: "+291" },{ name: "Estonia", code: "+372" },
+      { name: "Eswatini", code: "+268" },{ name: "Ethiopia", code: "+251" },{ name: "Fiji", code: "+679" },
+      { name: "Finland", code: "+358" },{ name: "France", code: "+33" },{ name: "Gabon", code: "+241" },
+      { name: "Gambia", code: "+220" },{ name: "Georgia", code: "+995" },{ name: "Germany", code: "+49" },
+      { name: "Ghana", code: "+233" },{ name: "Greece", code: "+30" },{ name: "Grenada", code: "+1" },
+      { name: "Guatemala", code: "+502" },{ name: "Guinea", code: "+224" },{ name: "Guinea-Bissau", code: "+245" },
+      { name: "Guyana", code: "+592" },{ name: "Haiti", code: "+509" },{ name: "Honduras", code: "+504" },
+      { name: "Hungary", code: "+36" },{ name: "Iceland", code: "+354" },{ name: "India", code: "+91" },
+      { name: "Indonesia", code: "+62" },{ name: "Iran", code: "+98" },{ name: "Iraq", code: "+964" },
+      { name: "Ireland", code: "+353" },{ name: "Israel", code: "+972" },{ name: "Italy", code: "+39" },
+      { name: "Jamaica", code: "+1" },{ name: "Japan", code: "+81" },{ name: "Jordan", code: "+962" },
+      { name: "Kazakhstan", code: "+7" },{ name: "Kenya", code: "+254" },{ name: "Kiribati", code: "+686" },
+      { name: "Kuwait", code: "+965" },{ name: "Kyrgyzstan", code: "+996" },{ name: "Laos", code: "+856" },
+      { name: "Latvia", code: "+371" },{ name: "Lebanon", code: "+961" },{ name: "Lesotho", code: "+266" },
+      { name: "Liberia", code: "+231" },{ name: "Libya", code: "+218" },{ name: "Liechtenstein", code: "+423" },
+      { name: "Lithuania", code: "+370" },{ name: "Luxembourg", code: "+352" },{ name: "Madagascar", code: "+261" },
+      { name: "Malawi", code: "+265" },{ name: "Malaysia", code: "+60" },{ name: "Maldives", code: "+960" },
+      { name: "Mali", code: "+223" },{ name: "Malta", code: "+356" },{ name: "Marshall Islands", code: "+692" },
+      { name: "Mauritania", code: "+222" },{ name: "Mauritius", code: "+230" },{ name: "Mexico", code: "+52" },
+      { name: "Micronesia", code: "+691" },{ name: "Moldova", code: "+373" },{ name: "Monaco", code: "+377" },
+      { name: "Mongolia", code: "+976" },{ name: "Montenegro", code: "+382" },{ name: "Morocco", code: "+212" },
+      { name: "Mozambique", code: "+258" },{ name: "Myanmar", code: "+95" },{ name: "Namibia", code: "+264" },
+      { name: "Nauru", code: "+674" },{ name: "Nepal", code: "+977" },{ name: "Netherlands", code: "+31" },
+      { name: "New Zealand", code: "+64" },{ name: "Nicaragua", code: "+505" },{ name: "Niger", code: "+227" },
+      { name: "Nigeria", code: "+234" },{ name: "North Macedonia", code: "+389" },{ name: "Norway", code: "+47" },
+      { name: "Oman", code: "+968" },{ name: "Pakistan", code: "+92" },{ name: "Palau", code: "+680" },
+      { name: "Panama", code: "+507" },{ name: "Papua New Guinea", code: "+675" },{ name: "Paraguay", code: "+595" },
+      { name: "Peru", code: "+51" },{ name: "Philippines", code: "+63" },{ name: "Poland", code: "+48" },
+      { name: "Portugal", code: "+351" },{ name: "Qatar", code: "+974" },{ name: "Romania", code: "+40" },
+      { name: "Russia", code: "+7" },{ name: "Rwanda", code: "+250" },{ name: "Saint Kitts and Nevis", code: "+1" },
+      { name: "Saint Lucia", code: "+1" },{ name: "Saint Vincent and the Grenadines", code: "+1" },
+      { name: "Samoa", code: "+685" },{ name: "San Marino", code: "+378" },{ name: "Saudi Arabia", code: "+966" },
+      { name: "Senegal", code: "+221" },{ name: "Serbia", code: "+381" },{ name: "Seychelles", code: "+248" },
+      { name: "Sierra Leone", code: "+232" },{ name: "Singapore", code: "+65" },{ name: "Slovakia", code: "+421" },
+      { name: "Slovenia", code: "+386" },{ name: "Solomon Islands", code: "+677" },{ name: "South Africa", code: "+27" },
+      { name: "South Korea", code: "+82" },{ name: "Spain", code: "+34" },{ name: "Sri Lanka", code: "+94" },
+      { name: "Sudan", code: "+249" },{ name: "Suriname", code: "+597" },{ name: "Sweden", code: "+46" },
+      { name: "Switzerland", code: "+41" },{ name: "Syria", code: "+963" },{ name: "Taiwan", code: "+886" },
+      { name: "Tajikistan", code: "+992" },{ name: "Tanzania", code: "+255" },{ name: "Thailand", code: "+66" },
+      { name: "Togo", code: "+228" },{ name: "Tonga", code: "+676" },{ name: "Trinidad and Tobago", code: "+1" },
+      { name: "Tunisia", code: "+216" },{ name: "Turkey", code: "+90" },{ name: "Turkmenistan", code: "+993" },
+      { name: "Tuvalu", code: "+688" },{ name: "Uganda", code: "+256" },{ name: "Ukraine", code: "+380" },
+      { name: "United Arab Emirates", code: "+971" },{ name: "United Kingdom", code: "+44" },{ name: "United States", code: "+1" },
+      { name: "Uruguay", code: "+598" },{ name: "Uzbekistan", code: "+998" },{ name: "Vanuatu", code: "+678" },
+      { name: "Vatican City", code: "+379" },{ name: "Venezuela", code: "+58" },{ name: "Vietnam", code: "+84" },
+      { name: "Yemen", code: "+967" },{ name: "Zambia", code: "+260" },{ name: "Zimbabwe", code: "+263" }
+    ];
+
+    const countryInput = document.getElementById("countryInput");
+    const dropdownList = document.getElementById("dropdownList");
+
+    let selectedCountry = countries.find(c => c.name === "Ghana") || countries[0];
+
+    function showDropdown(filter = "") {
+      dropdownList.innerHTML = "";
+      const filtered = countries.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()));
+      filtered.forEach(c => {
+        const div = document.createElement("div");
+        div.textContent = `${c.name} (${c.code})`;
+        div.onclick = () => {
+          selectedCountry = c;
+          countryInput.value = `${c.name} (${c.code})`;
+          dropdownList.style.display = "none";
+        };
+        dropdownList.appendChild(div);
+      });
+      dropdownList.style.display = "block";
+    }
+
+    countryInput.addEventListener("click", () => {
+      countryInput.readOnly = false;
+      showDropdown();
+      countryInput.focus();
+    });
+
+    countryInput.addEventListener("input", () => {
+      showDropdown(countryInput.value);
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest(".dropdown")) {
+        dropdownList.style.display = "none";
+        countryInput.readOnly = true;
+      }
+    });
+
+    countryInput.value = `${selectedCountry.name} (${selectedCountry.code})`;
+
+    let currentLink = "";
+
+    function generateLink() {
+      const phone = document.getElementById('phoneNumber').value.trim();
+      if (!phone) {
+        alert("Please enter a phone number.");
+        return;
+      }
+      let digits = phone.replace(/\D/g,'');
+      if (digits.startsWith("0")) digits = digits.substring(1);
+      currentLink = `https://wa.me/${selectedCountry.code.replace("+","")}${digits}`;
+      const resultDiv = document.getElementById('result');
+      resultDiv.innerHTML = `
+        <p><a href="${currentLink}" target="_blank">${currentLink}</a></p>
+        <button class="action-btn" onclick="copyLink()">Copy Link</button>
+        <button class="action-btn" onclick="openWhatsApp()">Open in WhatsApp</button>
+      `;
+    }
+
+    function copyLink() {
+      if (!currentLink) return;
+      navigator.clipboard.writeText(currentLink).then(() => {
+        alert("Link copied to clipboard!");
+      });
+    }
+
+    function openWhatsApp() {
+      if (!currentLink) return;
+      window.open(currentLink, "_blank");
+    }
+  </script>
+</body>
+</html>
